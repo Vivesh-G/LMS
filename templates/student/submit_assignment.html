@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Assignment - SNULMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .submission-form {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #1557b0;
+        }
+
+        .assignment-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .deadline {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h1 class="logo">SNULMS Student</h1>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="{{ url_for('student_courses') }}"><i class="fas fa-book"></i>My Courses</a></li>
+                <li><a href="{{ url_for('student_assignments') }}" class="active"><i class="fas fa-tasks"></i>Assignments</a></li>
+                <li><a href="{{ url_for('student_attendance') }}"><i class="fas fa-calendar-check"></i>Attendance</a></li>
+                <li><a href="{{ url_for('student_grades') }}"><i class="fas fa-star"></i>Grades</a></li>
+                <li><a href="{{ url_for('student_profile') }}"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="welcome-text">Submit Assignment</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+
+            <div class="submission-form">
+                <div class="assignment-info">
+                    <h2>{{ assignment.CCName }}</h2>
+                    <p><strong>Course:</strong> {{ assignment.CourseName }}</p>
+                    <p><strong>Due Date:</strong> <span class="deadline">{{ assignment.formatted_due_date }}</span></p>
+                    <p><strong>Description:</strong> {{ assignment.Description }}</p>
+                </div>
+
+                <form action="{{ url_for('submit_assignment', assignment_id=assignment.CourseContentID) }}" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="submission_file">Upload Your Assignment</label>
+                        <input type="file" class="form-control" id="submission_file" name="submission_file" required>
+                        <small>Supported formats: PDF, DOC, DOCX, ZIP (Max size: 10MB)</small>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit Assignment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

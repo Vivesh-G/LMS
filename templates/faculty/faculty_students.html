@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Students - SNULMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .student-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .student-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .enrollment-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .enrollment-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .enroll-btn {
+            background: linear-gradient(45deg, #11cb6a, #25fc94);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .enroll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 203, 106, 0.3);
+        }
+
+        .unenroll-btn {
+            background: linear-gradient(45deg, #cb1111, #fc2525);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .unenroll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(203, 17, 17, 0.3);
+        }
+
+        .btn-small {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+            color: white;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar navigation same as other templates -->
+        <div class="sidebar">
+            <h1 class="logo">SNULMS Faculty</h1>
+            <ul class="nav-links">
+                <li><a href="/home"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="{{ url_for('faculty_courses') }}"><i class="fas fa-book"></i>My Courses</a></li>
+                <li><a href="{{ url_for('faculty_assignments') }}"><i class="fas fa-tasks"></i>Assignments</a></li>
+                <li><a href="{{ url_for('faculty_students') }}" class="active"><i class="fas fa-users"></i>Students</a></li>
+                <li><a href="{{ url_for('faculty_reports') }}"><i class="fas fa-chart-bar"></i>Reports</a></li>
+                <li><a href="{{ url_for('faculty_profile') }}"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="welcome-text">Student Management</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+
+            <!-- Add Enrollment Section -->
+            <div class="enrollment-section">
+                <h3>Enroll Student</h3>
+                <form class="enrollment-form" method="POST" action="{{ url_for('enroll_student') }}">
+                    <select name="student_id" required>
+                        <option value="">Select Student</option>
+                        {% for student in available_students %}
+                        <option value="{{ student.ID }}">{{ student.RegistrationNo }} - {{ student.FirstName }} {{ student.LastName }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="course_id" required>
+                        <option value="">Select Course</option>
+                        {% for course in faculty_courses %}
+                        <option value="{{ course.CourseID }}">{{ course.CourseName }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="enroll-btn">Enroll Student</button>
+                </form>
+            </div>
+
+            <div class="student-stats">
+                {% for course in courses_summary %}
+                <div class="stat-card">
+                    <h3>{{ course.CourseName }}</h3>
+                    <p>{{ course.student_count }} Students</p>
+                    <p>Avg. Attendance: {{ "%.1f"|format(course.avg_attendance) }}%</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="student-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Registration No</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th>Enrollment Date</th>
+                            <th>Attendance</th>
+                            <th>Assignments</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in enrolled_students %}
+                        <tr>
+                            <td>{{ student.RegistrationNo }}</td>
+                            <td>{{ student.FirstName }} {{ student.LastName }}</td>
+                            <td>{{ student.CourseName }}</td>
+                            <td>{{ student.EnrollmentDate.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ "%.1f"|format(student.attendance_percentage) }}%</td>
+                            <td>{{ student.completed_assignments }}/{{ student.total_assignments }}</td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{{ url_for('view_student_details', student_id=student.ID) }}" class="btn-small">View</a>
+                                    <form method="POST" action="{{ url_for('unenroll_student') }}" style="display: inline;">
+                                        <input type="hidden" name="student_id" value="{{ student.ID }}">
+                                        <input type="hidden" name="course_id" value="{{ student.CourseID }}">
+                                        <button type="submit" class="unenroll-btn" onclick="return confirm('Are you sure you want to unenroll this student?')">
+                                            Unenroll
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

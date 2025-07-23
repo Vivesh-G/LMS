@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>View Submissions - SNULMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .submissions-container {
+            padding: 20px;
+        }
+        .assignment-info {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .submissions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .submissions-table th, 
+        .submissions-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .submissions-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .grade-input {
+            width: 70px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .save-grade {
+            padding: 5px 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .save-grade:hover {
+            background: #218838;
+        }
+        .submission-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .submission-link:hover {
+            text-decoration: underline;
+        }
+        .not-submitted {
+            color: #dc3545;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h1 class="logo">SNULMS Faculty</h1>
+            <ul class="nav-links">
+                <li><a href="/home"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="{{ url_for('faculty_courses') }}"><i class="fas fa-book"></i>My Courses</a></li>
+                <li><a href="{{ url_for('faculty_assignments') }}" class="active"><i class="fas fa-tasks"></i>Assignments</a></li>
+                <li><a href="{{ url_for('faculty_students') }}"><i class="fas fa-users"></i>Students</a></li>
+                <li><a href="{{ url_for('faculty_reports') }}"><i class="fas fa-chart-bar"></i>Reports</a></li>
+                <li><a href="{{ url_for('faculty_profile') }}"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="welcome-text">Assignment Submissions</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+
+            <div class="submissions-container">
+                <div class="assignment-info">
+                    <h2>{{ assignment.CCName }}</h2>
+                    <p><strong>Course:</strong> {{ assignment.CourseName }}</p>
+                    <p><strong>Due Date:</strong> {{ assignment.DueDate }}</p>
+                    <p><strong>Total Submissions:</strong> {{ submissions|selectattr('FileUrl')|list|length }}/{{ total_students }}</p>
+                </div>
+
+                <table class="submissions-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Submission Date</th>
+                            <th>Submission</th>
+                            <th>Grade</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for submission in submissions %}
+                        <tr>
+                            <td>{{ submission.StudentID }}</td>
+                            <td>{{ submission.FirstName }} {{ submission.LastName }}</td>
+                            <td>{{ submission.SubmissionDate or 'Not Submitted' }}</td>
+                            <td>
+                                {% if submission.FileUrl %}
+                                <a href="/{{ submission.FileUrl }}" class="submission-link" target="_blank">
+                                    <i class="fas fa-file-download"></i> View Submission
+                                </a>
+                                {% else %}
+                                <span class="not-submitted">No submission</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <input type="number" class="grade-input" value="{{ submission.Grade or '' }}" 
+                                       min="0" max="100" id="grade-{{ submission.StudentID }}">
+                            </td>
+                            <td>
+                                <button class="save-grade" onclick="saveGrade({{ submission.StudentID }})">
+                                    Save Grade
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function saveGrade(studentId) {
+            // This function will be implemented later for grade submission
+            alert('Grade submission will be implemented in the future.');
+        }
+    </script>
+</body>
+</html>

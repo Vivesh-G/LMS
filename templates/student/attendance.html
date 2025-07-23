@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance - SNULMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .attendance-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .attendance-percentage {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .attendance-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #1a73e8;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1557b0;
+        }
+        
+        .mt-3 {
+            margin-top: 1rem;
+        }
+
+        .calculator-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 20px;
+        }
+        
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h1 class="logo">SNULMS Student</h1>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="{{ url_for('student_courses') }}"><i class="fas fa-book"></i>My Courses</a></li>
+                <li><a href="{{ url_for('student_assignments') }}"><i class="fas fa-tasks"></i>Assignments</a></li>
+                <li><a href="{{ url_for('student_attendance') }}" class="active"><i class="fas fa-calendar-check"></i>Attendance</a></li>
+                <li><a href="{{ url_for('student_grades') }}"><i class="fas fa-star"></i>Grades</a></li>
+                <li><a href="{{ url_for('student_profile') }}"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="welcome-text">Attendance Overview</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+
+            <div class="attendance-grid">
+                {% if attendance %}
+                    {% for course in attendance %}
+                    <div class="attendance-card">
+                        <h3>{{ course.CourseName }}</h3>
+                        <div class="attendance-percentage {% if course.attendance_percentage < 75 %}text-danger{% endif %}">
+                            {{ "%.1f"|format(course.attendance_percentage|float) }}%
+                        </div>
+                        <div class="attendance-stats">
+                            <div class="stat-box">
+                                <h4>{{ course.attended_classes }}</h4>
+                                <p>Classes Attended</p>
+                            </div>
+                            <div class="stat-box">
+                                <h4>{{ course.total_classes }}</h4>
+                                <p>Total Classes</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="attendance-card">
+                        <h3>No Enrolled Courses</h3>
+                        <p>You are not enrolled in any courses yet. Please enroll in courses to view attendance.</p>
+                        <a href="{{ url_for('student_courses') }}" class="btn btn-primary mt-3">
+                            <i class="fas fa-book"></i> View Available Courses
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="calculator-section">
+                <h2>Attendance Calculator</h2>
+                <div class="calculator-grid">
+                    <div class="input-group">
+                        <label for="totalClasses">Total Classes (Taken Till Now)</label>
+                        <input type="number" id="totalClasses" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="attendedClasses">Classes Attended</label>
+                        <input type="number" id="attendedClasses" min="0">
+                    </div>
+                    <div class="input-group">
+                        <label for="remainingClasses">Remaining Classes</label>
+                        <input type="number" id="remainingClasses" min="0">
+                    </div>
+                </div>
+                <button onclick="calculateAttendance()" class="btn btn-primary mt-3">Calculate</button>
+                <div class="result-box" id="resultBox" style="display: none;">
+                    <h3>Results</h3>
+                    <p>Current Attendance: <span id="currentAttendance">0</span>%</p>
+                    <p>To achieve 75% attendance:</p>
+                    <p>Classes to attend: <span id="classesToAttend">0</span></p>
+                    <p>Classes you can miss: <span id="classesToMiss">0</span></p>
+                </div>
+            </div>
+
+            <script>
+                function calculateAttendance() {
+                    const totalClasses = parseInt(document.getElementById('totalClasses').value) || 0;
+                    const attendedClasses = parseInt(document.getElementById('attendedClasses').value) || 0;
+                    const remainingClasses = parseInt(document.getElementById('remainingClasses').value) || 0;
+                    
+                    const currentPercentage = (attendedClasses / totalClasses) * 100;
+                    const totalFutureClasses = totalClasses + remainingClasses;
+                    const requiredClasses = Math.ceil((totalFutureClasses * 0.75) - attendedClasses);
+                    const canMiss = remainingClasses - requiredClasses;
+                    
+                    document.getElementById('currentAttendance').textContent = currentPercentage.toFixed(2);
+                    document.getElementById('classesToAttend').textContent = Math.max(0, requiredClasses);
+                    document.getElementById('classesToMiss').textContent = Math.max(0, canMiss);
+                    document.getElementById('resultBox').style.display = 'block';
+                }
+            </script>
+        </div>
+    </div>
+</body>
+</html>

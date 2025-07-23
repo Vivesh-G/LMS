@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Grades - SNULMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .grades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .grade-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .grade-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px auto;
+        }
+
+        .grade-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .grade-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        .sgpa-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .sgpa-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #e3f2fd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 15px auto;
+        }
+
+        .sgpa-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+
+        .sgpa-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .sgpa-calculator {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .course-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-add {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .btn-remove {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-calculate {
+            background: #28a745;
+            color: white;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        function addCourse() {
+            const coursesDiv = document.getElementById('courses');
+            const courseDiv = document.createElement('div');
+            courseDiv.className = 'course-inputs';
+            courseDiv.innerHTML = `
+                <div class="input-group">
+                    <input type="text" placeholder="Course Name" required>
+                </div>
+                <div class="input-group">
+                    <input type="number" step="0.1" min="0" max="10" placeholder="Grade" required>
+                </div>
+                <div class="input-group">
+                    <input type="number" min="1" max="6" placeholder="Credits" required>
+                </div>
+                <button type="button" class="btn btn-remove" onclick="removeCourse(this)">
+                    <i class="fas fa-minus"></i>
+                </button>
+            `;
+            coursesDiv.appendChild(courseDiv);
+        }
+
+        function removeCourse(button) {
+            button.parentElement.remove();
+        }
+
+        function calculateSGPA() {
+            let totalCredits = 0;
+            let weightedSum = 0;
+            const courseInputs = document.querySelectorAll('.course-inputs');
+
+            courseInputs.forEach(course => {
+                const inputs = course.querySelectorAll('input');
+                const grade = parseFloat(inputs[1].value);
+                const credits = parseFloat(inputs[2].value);
+                
+                if (!isNaN(grade) && !isNaN(credits)) {
+                    weightedSum += grade * credits;
+                    totalCredits += credits;
+                }
+            });
+
+            const sgpa = totalCredits > 0 ? Math.min(weightedSum / totalCredits, 10) : 0;
+            document.getElementById('sgpa-value').textContent = sgpa.toFixed(2);
+            document.getElementById('total-credits').textContent = totalCredits;
+        }
+    </script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h1 class="logo">SNULMS Student</h1>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="{{ url_for('student_courses') }}"><i class="fas fa-book"></i>My Courses</a></li>
+                <li><a href="{{ url_for('student_assignments') }}"><i class="fas fa-tasks"></i>Assignments</a></li>
+                <li><a href="{{ url_for('student_attendance') }}"><i class="fas fa-calendar-check"></i>Attendance</a></li>
+                <li><a href="{{ url_for('student_grades') }}" class="active"><i class="fas fa-star"></i>Grades</a></li>
+                <li><a href="{{ url_for('student_profile') }}"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="welcome-text">Grade Overview</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+
+            <div class="grades-grid">
+                {% if grades %}
+                    {% for course in grades %}
+                    <div class="grade-card">
+                        <h3>{{ course.CourseName }}</h3>
+                        <div class="grade-circle">
+                            <div class="grade-value">{{ "%.1f"|format(course.average_grade|float) }}</div>
+                        </div>
+                        <div class="grade-stats">
+                            <div class="stat-box">
+                                <h4>{{ course.completed_assignments }}/{{ course.total_assignments }}</h4>
+                                <p>Assignments</p>
+                            </div>
+                            <div class="stat-box">
+                                <h4>{{ course.CourseCredit }}</h4>
+                                <p>Credit Hours</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- SGPA Calculator Card -->
+                    <div class="sgpa-card">
+                        <h2>Semester GPA</h2>
+                        <div class="sgpa-circle">
+                            {% set total_credits = namespace(value=0) %}
+                            {% set weighted_sum = namespace(value=0) %}
+                            
+                            {% for course in grades %}
+                                {% set total_credits.value = total_credits.value + course.CourseCredit %}
+                                {% set grade_points = (course.average_grade|float * course.CourseCredit)|float %}
+                                {% set weighted_sum.value = weighted_sum.value + grade_points %}
+                            {% endfor %}
+                            
+                            {% set sgpa = (weighted_sum.value / total_credits.value)|float %}
+                            {% if sgpa > 10 %}{% set sgpa = 10 %}{% endif %}
+                            
+                            <div class="sgpa-value">{{ "%.2f"|format(sgpa) }}</div>
+                            <div class="sgpa-label">SGPA</div>
+                        </div>
+                        <p>Total Credits: {{ total_credits.value }}</p>
+                    </div>
+                {% else %}
+                    <div class="grade-card">
+                        <h3>No Enrolled Courses</h3>
+                        <p>You are not enrolled in any courses yet. Please enroll in courses to view grades.</p>
+                        <a href="{{ url_for('student_courses') }}" class="btn btn-primary mt-3">
+                            <i class="fas fa-book"></i> View Available Courses
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- SGPA Calculator -->
+                <div class="sgpa-calculator">
+                    <h2>SGPA Calculator</h2>
+                    <div id="courses">
+                        <div class="course-inputs">
+                            <div class="input-group">
+                                <input type="text" placeholder="Course Name" required>
+                            </div>
+                            <div class="input-group">
+                                <input type="number" step="0.1" min="0" max="10" placeholder="Grade" required>
+                            </div>
+                            <div class="input-group">
+                                <input type="number" min="1" max="6" placeholder="Credits" required>
+                            </div>
+                            <button type="button" class="btn btn-remove" onclick="removeCourse(this)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-add" onclick="addCourse()">
+                        <i class="fas fa-plus"></i> Add Course
+                    </button>
+                    <button type="button" class="btn btn-calculate" onclick="calculateSGPA()">
+                        Calculate SGPA
+                    </button>
+                    <div class="sgpa-circle">
+                        <div class="sgpa-value" id="sgpa-value">0.00</div>
+                        <div class="sgpa-label">SGPA</div>
+                    </div>
+                    <p>Total Credits: <span id="total-credits">0</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

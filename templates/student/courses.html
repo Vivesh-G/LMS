@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>My Courses - SNULMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-card.enrolled {
+            border-left: 4px solid #1a73e8;
+        }
+
+        .course-card.not-enrolled {
+            border-left: 4px solid #dc3545;
+            opacity: 0.8;
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .course-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .view-course-btn {
+            width: 100%;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-course-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+
+        .not-enrolled-message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .enroll-btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .enroll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h1 class="logo">SNULMS Student</h1>
+            <ul class="nav-links">
+                <li><a href="/home"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="{{ url_for('student_courses') }}" class="active"><i class="fas fa-book"></i>My Courses</a></li>
+                <li><a href="{{ url_for('student_assignments') }}"><i class="fas fa-tasks"></i>Assignments</a></li>
+                <li><a href="{{ url_for('student_attendance') }}"><i class="fas fa-calendar-check"></i>Attendance</a></li>
+                <li><a href="{{ url_for('student_grades') }}"><i class="fas fa-star"></i>Grades</a></li>
+                <li><a href="{{ url_for('student_profile') }}"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <div class="welcome-text">My Courses</div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+            
+            <div class="course-grid">
+                {% for course in courses %}
+                <div class="course-card {% if course.is_enrolled == 1 %}enrolled{% else %}not-enrolled{% endif %}">
+                    <div class="course-header">
+                        <h3>{{ course.CourseName }}</h3>
+                        <span class="course-code">{{ course.CourseID }}</span>
+                    </div>
+                    <p><i class="fas fa-user-tie"></i> Prof. {{ course.FacultyFirstName }} {{ course.FacultyLastName }}</p>
+                    <p><i class="fas fa-graduation-cap"></i> Credits: {{ course.CourseCredit }}</p>
+                    
+                    {% if course.is_enrolled == 1 %}
+                    <div class="course-stats">
+                        <div class="stat-box">
+                            <h4>{{ "%.1f"|format(course.attendance_percentage|float) }}%</h4>
+                            <p>Attendance</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>{{ course.assignments_count|default(0) }}</h4>
+                            <p>Assignments</p>
+                        </div>
+                        <div class="stat-box">
+                            <h4>{{ course.grade|default('N/A') }}</h4>
+                            <p>Grade</p>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('course', course_id=course.CourseID) }}" class="course-link">
+                        <button class="view-course-btn">View Course Details</button>
+                    </a>
+                    {% else %}
+                    <div class="not-enrolled-message">
+                        <p>Not enrolled in this course</p>
+                        <button class="enroll-btn" onclick="requestEnrollment('{{ course.CourseID }}')">Request Enrollment</button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="course-card">
+                    <p>No courses available.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script>
+        function requestEnrollment(courseId) {
+            if (confirm('Do you want to request enrollment in this course?')) {
+                fetch('/student/request-enrollment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        course_id: courseId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Enrollment request sent successfully!');
+                        location.reload();
+                    } else {
+                        alert('Failed to send enrollment request: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error sending enrollment request');
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="settings-container">
+    <h2 class="settings-title">Admin Settings</h2>
+    
+    <div class="settings-columns">
+        <div class="settings-column">
+            <!-- System Settings -->
+            <div class="settings-card">
+                <h3>System Settings</h3>
+                <form class="settings-form">
+                    <div class="form-group">
+                        <label>Maintenance Mode</label>
+                        <label class="switch">
+                            <input type="checkbox" name="maintenance_mode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Enable Email Notifications</label>
+                        <label class="switch">
+                            <input type="checkbox" name="email_notifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Password Change -->
+            <div class="settings-card">
+                <h3>Change Password</h3>
+                <form class="settings-form">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" name="current_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" name="new_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" name="confirm_password" required>
+                    </div>
+                    <button type="submit" class="btn-save">Update Password</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="settings-column">
+            <!-- Academic Calendar -->
+            <div class="settings-card">
+                <h3>Academic Calendar</h3>
+                <form class="settings-form">
+                    <div class="form-group">
+                        <label>Semester Start Date</label>
+                        <input type="date" name="semester_start">
+                    </div>
+                    <div class="form-group">
+                        <label>Semester End Date</label>
+                        <input type="date" name="semester_end">
+                    </div>
+                    <div class="form-group">
+                        <label>Registration Deadline</label>
+                        <input type="date" name="registration_deadline">
+                    </div>
+                    <button type="submit" class="btn-save">Update Calendar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: max-content;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .settings-title {
+        margin-bottom: 50px;
+        color: #333;
+        font-size: 2rem;
+    }
+
+    .settings-columns {
+        display: flex;
+        gap: 50px;
+        margin: 0 -25px;
+    }
+
+    .settings-column {
+        flex: 1;
+        padding: 0 25px;
+    }
+
+    .settings-card {
+        background: white;
+        border-radius: 8px;
+        padding: 80px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .settings-card h3 {
+        margin-bottom: 40px;
+        font-size: 1.5rem;
+        color: #444;
+        border-bottom: 3px solid #f0f0f0;
+        padding-bottom: 15px;
+    }
+
+    .settings-form .form-group {
+        margin-bottom: 30px;
+    }
+
+    .settings-form label {
+        display: block;
+        margin-bottom: 10px;
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .settings-form input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 1.1rem;
+    }
+
+    .btn-save {
+        background: linear-gradient(45deg, #11cb4d, #25fc76);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 1.1rem;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(17, 203, 77, 0.3);
+    }
+
+    /* Toggle Switch */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 44px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 36px;
+        width: 36px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background: linear-gradient(45deg, #6a11cb, #2575fc);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(36px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 768px) {
+        .settings-columns {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

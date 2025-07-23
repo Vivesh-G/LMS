@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Students - SNULMS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .students-section {
+            padding: 20px;
+        }
+        .filter-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filter-card select {
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .students-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .students-table th, 
+        .students-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .students-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .students-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .stat-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .good {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .poor {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .enrollment-section {
+            margin-bottom: 20px;
+        }
+        
+        .enrollment-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .enrollment-form select {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .enroll-btn {
+            background: linear-gradient(45deg, #11cb6a, #25fc94);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .enroll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 203, 106, 0.3);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-start;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+        }
+        
+        .view-btn {
+            background-color: #007bff;
+        }
+        
+        .action-btn.unenroll-btn {
+            background: linear-gradient(45deg, #cb1111, #fc2525);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .action-btn.unenroll-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(203, 17, 17, 0.3);
+        }
+        
+        .logout-btn {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h1 class="logo">SNULMS Faculty</h1>
+            <ul class="nav-links">
+                <li><a href="/home"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="/faculty/courses"><i class="fas fa-book"></i>My Courses</a></li>
+                <li><a href="/faculty/assignments"><i class="fas fa-tasks"></i>Assignments</a></li>
+                <li><a href="/faculty/students" class="active"><i class="fas fa-users"></i>Students</a></li>
+                <li><a href="/faculty/reports"><i class="fas fa-chart-bar"></i>Reports</a></li>
+                <li><a href="/faculty/profile"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div class="header">
+                <div class="welcome-text">Students</div>
+                <a href="/logout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+            
+            <div class="students-section">
+                <!-- Enrollment Section -->
+                <div class="filter-card enrollment-section">
+                    <h3>Enroll New Student</h3>
+                    <form class="enrollment-form" method="POST" action="{{ url_for('enroll_student') }}">
+                        <select name="student_id" required>
+                            <option value="">Select Student</option>
+                            {% for student in available_students %}
+                            <option value="{{ student.ID }}">
+                                {{ student.RegistrationNo }} - {{ student.FirstName }} {{ student.LastName }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <select name="course_id" required>
+                            <option value="">Select Course</option>
+                            {% for course in faculty_courses %}
+                            <option value="{{ course.CourseID }}">{{ course.CourseName }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="enroll-btn">Enroll Student</button>
+                    </form>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-card">
+                    <h3>Filter Students</h3>
+                    <select id="courseFilter" onchange="filterStudents()">
+                        <option value="">All Courses</option>
+                        {% for course in faculty_courses %}
+                        <option value="{{ course.CourseID }}">{{ course.CourseName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Students Table -->
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th>Registration No</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th>Department</th>
+                            <th>Attendance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in enrolled_students %}
+                        <tr class="student-row" data-course="{{ student.CourseID }}">
+                            <td>{{ student.RegistrationNo }}</td>
+                            <td>{{ student.FirstName }} {{ student.LastName }}</td>
+                            <td>{{ student.CourseName }}</td>
+                            <td>{{ student.DepartmentName }}</td>
+                            <td>
+                                {% if student.attendance_percentage is not none %}
+                                    <span class="stat-badge 
+                                        {{- ' good' if student.attendance_percentage >= 75 -}}
+                                        {{- ' warning' if student.attendance_percentage >= 60 and student.attendance_percentage < 75 -}}
+                                        {{- ' poor' if student.attendance_percentage < 60 -}}
+                                    ">
+                                        {{ "%.1f"|format(student.attendance_percentage) }}%
+                                    </span>
+                                {% else %}
+                                    <span class="stat-badge">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <form method="POST" action="{{ url_for('unenroll_student') }}" style="display: inline;">
+                                        <input type="hidden" name="student_id" value="{{ student.ID }}">
+                                        <input type="hidden" name="course_id" value="{{ student.CourseID }}">
+                                        <button type="submit" class="action-btn unenroll-btn"
+                                                onclick="return confirm('Are you sure you want to unenroll this student?')">
+                                            <i class="fas fa-user-minus"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <script>
+        function filterStudents() {
+            const courseId = document.getElementById('courseFilter').value;
+            const rows = document.querySelectorAll('.student-row');
+            
+            rows.forEach(row => {
+                if (!courseId || row.dataset.course === courseId) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
